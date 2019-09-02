@@ -1,0 +1,68 @@
+---
+
+version: "2.1"
+
+orbs:
+  maven:
+    executors:
+      maven:
+        docker:
+          - image: circleci/openjdk:8-jdk
+    commands:
+      with_cache:
+        parameters:
+          steps:
+            type: steps
+        steps:
+          - restore_cache:
+              key: m2-{{ checksum "pom.xml" }}
+          - run:
+              name: Install dependencies
+              command: mvn dependency:go-offline
+          - save_cache:
+              paths:
+                - ~/.m2
+              key: m2-{{ checksum "pom.xml" }}
+          - steps: << parameters.steps >>
+
+workflows:
+  ci:
+    jobs:
+      - lint
+      - package:
+          requires:
+            - lint
+
+jobs:
+  lint:
+    executor: maven/maven
+    steps:
+      - checkout
+      - maven/with_cache:
+          steps:
+            - run: mvn process-sources
+      - run:
+          name: Ensure no source code was rewritten
+          command: |
+            if [ -n "$(git status --short)" ]; then
+              git status
+              exit 1
+            fi
+  package:
+    executor: maven/maven
+    steps:
+      - checkout
+      - maven/with_cache:
+          steps:
+            - run: mvn package -Dcircleci.build.number=${CIRCLE_BUILD_NUM}
+      - store_test_results:
+          path: target/surefire-reports
+      - store_artifacts:
+          path: target
+      - run:
+          name: Upload coverage data
+          command: bash <(curl -s https://codecov.io/bash)
+      - persist_to_workspace:
+          root: target
+          paths:
+            - "*.jar"
