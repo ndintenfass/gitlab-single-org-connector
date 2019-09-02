@@ -11,14 +11,36 @@
     <circleci.build.number>0-SNAPSHOT</circleci.build.number>
     <dropwizard.version>2.0.0-rc9</dropwizard.version>
     <junit.version>5.5.1</junit.version>
+    <metrics.statsd.version>4.2.0</metrics.statsd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-readytalk-maven</id>
+      <name>bintray</name>
+      <url>https://dl.bintray.com/readytalk/maven</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
       <groupId>io.dropwizard</groupId>
       <artifactId>dropwizard-core</artifactId>
       <version>${dropwizard.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.readytalk</groupId>
+      <artifactId>metrics-statsd-common</artifactId>
+      <version>${metrics.statsd.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.readytalk</groupId>
+      <artifactId>metrics3-statsd</artifactId>
+      <version>${metrics.statsd.version}</version>
     </dependency>
 
     <dependency>
