@@ -32,6 +32,9 @@ workflows:
       - package:
           requires:
             - lint
+      - containerize:
+          requires:
+            - package
 
 jobs:
   lint:
@@ -66,3 +69,19 @@ jobs:
           root: target
           paths:
             - "*.jar"
+  containerize:
+    executor: maven/maven
+    steps:
+      - checkout
+      - attach_workspace:
+          at: target
+      - setup_remote_docker
+      - run:
+          name: Build Docker container
+          command: |
+            JAR=$(ls target/gitlab-single-org-connector-*.jar)
+            VERSION=$(echo "${JAR}" | sed -e 's,^.*-,,' -e 's,.jar$,,' | uniq)
+            docker build \
+              --build-arg JAR="${JAR}" \
+              --tag "circleci/gitlab-single-org-connector:${VERSION}" \
+              .
