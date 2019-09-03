@@ -18,7 +18,7 @@ public class ConnectorApplication extends Application<ConnectorConfiguration> {
   private Logger LOGGER = LoggerFactory.getLogger(ConnectorApplication.class);
 
   /** Start a periodic statsd reporter if we have configuration for statsd. */
-  private void maybeConfigureStatsdMetrics(ConnectorConfiguration config, MetricRegistry registry) {
+  void maybeConfigureStatsdMetrics(ConnectorConfiguration config, MetricRegistry registry) {
     if (config.getStatsd() != null) {
       ConnectorConfiguration.Statsd statsd = config.getStatsd();
       if (statsd.getHost() != null) {
@@ -40,7 +40,7 @@ public class ConnectorApplication extends Application<ConnectorConfiguration> {
    */
   public void run(ConnectorConfiguration config, Environment environment) throws Exception {
     environment.healthChecks().register("CircleCI API", new CircleCiApiHealthCheck());
-    environment.jersey().register(new HookResource());
+    environment.jersey().register(new HookResource(config.getGitlab().getSharedSecretForHooks()));
 
     maybeConfigureStatsdMetrics(config, environment.metrics());
   }

@@ -5,16 +5,48 @@ import io.dropwizard.Configuration;
 import org.hibernate.validator.constraints.Range;
 
 public class ConnectorConfiguration extends Configuration {
+  private GitLab gitlab;
+
   private Statsd statsd;
 
   public ConnectorConfiguration() {}
 
+  GitLab getGitlab() {
+    if (gitlab == null) {
+      return new GitLab();
+    }
+    return gitlab;
+  }
+
+  void setGitlab(GitLab g) {
+    gitlab = g;
+  }
+
   Statsd getStatsd() {
+    if (statsd == null) {
+      return new Statsd();
+    }
     return statsd;
   }
 
   void setStatsd(Statsd s) {
     statsd = s;
+  }
+
+  class GitLab {
+    private String sharedSecretForHooks;
+
+    public GitLab() {}
+
+    @JsonProperty
+    String getSharedSecretForHooks() {
+      return sharedSecretForHooks;
+    }
+
+    @JsonProperty
+    void setSharedSecretForHooks(String secret) {
+      sharedSecretForHooks = secret;
+    }
   }
 
   class Statsd {
